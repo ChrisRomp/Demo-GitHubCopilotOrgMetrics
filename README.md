@@ -17,7 +17,7 @@ Small TypeScript SDK + CLI to fetch GitHub Copilot **organization** metrics usin
 
 Example:
 
-- `GITHUB_APP_PRIVATE_KEY_PATH=/Users/chris/Downloads/rompdevmetrics.2025-12-16.private-key.pem`
+- `GITHUB_APP_PRIVATE_KEY_PATH=/absolute/path/to/private-key.pem`
 
 The CLI loads `.env` automatically.
 
