@@ -24,6 +24,23 @@ export type CopilotMetricsQuery = {
   per_page?: number;
 };
 
+export type CopilotUsageMetricsReportKind = 'organization' | 'users';
+export type CopilotUsageMetricsReportPeriod = '1-day' | '28-day';
+
+export type CopilotUsageMetricsReportOptions = {
+  kind?: CopilotUsageMetricsReportKind;
+  period?: CopilotUsageMetricsReportPeriod;
+  /** Required when period is '1-day'. Format: YYYY-MM-DD */
+  day?: string;
+};
+
+export type CopilotUsageMetricsReportResponse = {
+  download_links: string[];
+  report_day?: string;
+  report_start_day?: string;
+  report_end_day?: string;
+};
+
 function base64UrlEncode(input: string | Buffer): string {
   const buf = typeof input === 'string' ? Buffer.from(input, 'utf8') : input;
   return buf
@@ -153,6 +170,36 @@ export class GitHubAppClient {
     const url = `${this.apiBaseUrl}/orgs/${encodeURIComponent(org)}/copilot/metrics${qs}`;
 
     return await githubJson<unknown>(url, {
+      headers: this.withCommonHeaders(`Bearer ${token}`),
+    });
+  }
+
+  async getOrgCopilotUsageMetricsReport(
+    org: string,
+    options: CopilotUsageMetricsReportOptions = {}
+  ): Promise<CopilotUsageMetricsReportResponse> {
+    const { token } = await this.getInstallationAccessTokenForOrg(org);
+
+    const kind: CopilotUsageMetricsReportKind = options.kind ?? 'organization';
+    const period: CopilotUsageMetricsReportPeriod = options.period ?? '28-day';
+
+    if (period === '1-day') {
+      if (!options.day) {
+        throw new Error("Missing required 'day' for 1-day report. Expected YYYY-MM-DD.");
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(options.day)) {
+        throw new Error("Invalid 'day' format. Expected YYYY-MM-DD.");
+      }
+    }
+
+    const reportPath =
+      period === '28-day'
+        ? `${kind}-28-day/latest`
+        : `${kind}-1-day${buildQuery({ day: options.day })}`;
+
+    const url = `${this.apiBaseUrl}/orgs/${encodeURIComponent(org)}/copilot/metrics/reports/${reportPath}`;
+
+    return await githubJson<CopilotUsageMetricsReportResponse>(url, {
       headers: this.withCommonHeaders(`Bearer ${token}`),
     });
   }
