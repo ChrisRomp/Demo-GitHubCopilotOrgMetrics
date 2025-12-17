@@ -15,11 +15,7 @@ Small TypeScript SDK + CLI to fetch GitHub Copilot **organization** metrics usin
 - `GITHUB_ORG` = org login
 - (optional) `GITHUB_API_BASE_URL` = GitHub API base URL (default `https://api.github.com`)
 
-Example:
-
-- `GITHUB_APP_PRIVATE_KEY_PATH=/absolute/path/to/private-key.pem`
-
-The CLI loads `.env` automatically.
+You can use [.env.example](.env.example) as a template. The CLI loads `.env` automatically.
 
 ## Build
 
